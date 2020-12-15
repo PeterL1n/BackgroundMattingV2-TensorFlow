@@ -14,6 +14,9 @@ import torch # For loading PyTorch weights.
 
 from model import MattingRefine, load_torch_weights
 
+# Enable mixed precision, it reduces memory and may make model inference faster.
+tf.config.optimizer.set_experimental_options({"auto_mixed_precision": True})
+
 # Create TensorFlow model
 model = MattingRefine(backbone='resnet50',
                       backbone_scale=0.25,
@@ -25,6 +28,11 @@ load_torch_weights(model, torch.load('PATH_TO_PYTORCH_WEIGHTS.pth'))
 
 src = tf.random.normal((1, 1080, 1920, 3))
 bgr = tf.random.normal((1, 1080, 1920, 3))
+
+# Faster inference with tf.function
+# Note that at the first time the model run with
+# tf.function will be slow.
+model = tf.function(model, experimental_relax_shapes=True)
 
 pha, fgr = model([src, bgr], training=False)[:2]
 ```
