@@ -116,20 +116,6 @@ class Refiner(Model):
         return tf.image.crop_and_resize(x, boxes, box_indices, (size + 2 * padding, size + 2 * padding), 'nearest')
     
     def replace_patch(self, x, y, idx):
-        ### Use scatter_nd for patch replacment. Uncomment below for tfjs export compatibility.
-        # shape = tf.shape(x)
-        # shape_patched = (shape[0], shape[1] // 4, shape[2] // 4, 4, 4, shape[3])
-        # m = tf.ones_like(y)
-        # m = tf.scatter_nd(idx, m, shape_patched)
-        # y = tf.scatter_nd(idx, y, shape_patched)
-        # y = tf.transpose(y, (0, 1, 3, 2, 4, 5))
-        # m = tf.transpose(m, (0, 1, 3, 2, 4, 5))
-        # y = tf.reshape(y, shape)
-        # m = tf.reshape(m, shape)
-        # x = tf.where(m != 0, y, x)
-        # return x
-        
-        ### Use scatter_nd_update for patch replacement.
         shape = tf.shape(x)
         x = tf.reshape(x, (shape[0], shape[1] // 4, 4, shape[2] // 4, 4, shape[3]))
         x = tf.transpose(x, (0, 1, 3, 2, 4, 5))
